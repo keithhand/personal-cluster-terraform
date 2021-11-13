@@ -112,6 +112,19 @@ module "k8s_apps" {
 locals {
   helm_apps_root_dir = "./helm_apps"
   helm_apps = {
+    ingress_nginx = {
+      directories = {
+        generated = "${local.helm_apps_root_dir}/ingress_nginx"
+      }
+      namespace = "ingress-nginx"
+      chart = "ingress-nginx/ingress-nginx"
+      values = [ yamlencode({
+        controller = {
+          watchIngressWithoutClass = true
+          service = { externalIPs = [ "10.100.3.0" ] }
+        }
+      })]
+    }
   }
 }
 
