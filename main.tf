@@ -71,6 +71,29 @@ module "talos_os" {
 locals {
   k8s_apps_root_dir = "./k8s_apps"
   k8s_apps = {
+    metal_lb = {
+      namespace = "metallb-system"
+      manifest_url = "https://raw.githubusercontent.com/metallb/metallb/v0.11.0/manifests/metallb.yaml"
+      directories = {
+        generated = "${local.k8s_apps_root_dir}/metal_lb"
+      }
+      additional_manifests = [
+        <<-EOT
+          apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            namespace: metallb-system
+            name: config
+          data:
+            config: |
+              address-pools:
+              - name: default
+                protocol: layer2
+                addresses:
+                - 10.100.3.0/24
+        EOT
+      ]
+    } 
   }
 }
 
