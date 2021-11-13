@@ -17,11 +17,17 @@ locals {
 provider "proxmox" {
   virtual_environment {
     insecure = local.allow_insecure
+    endpoint = ""
+    username = ""
+    password = ""
   }
 }
 
 provider "unifi" {
   allow_insecure = local.allow_insecure
+  api_url        = ""
+  username       = ""
+  password       = ""
 }
 
 provider "helm" {
