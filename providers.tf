@@ -23,3 +23,7 @@ provider "proxmox" {
 provider "unifi" {
   allow_insecure = local.allow_insecure
 }
+
+provider "kubernetes" {
+  config_path = "~/.kube/config"
+}
