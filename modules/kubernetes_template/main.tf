@@ -31,3 +31,19 @@ resource "local_file" "manifest_yaml" {
     command = "kubectl apply -n ${kubernetes_namespace.primary_namespace.id} -f ${self.filename}"
   }
 }
+
+resource "local_file" "patch_jsons" {
+  count = length(var.patches)
+  filename = "${var.directories.generated}/patches/patch.${count.index}.json"
+  content = jsonencode(var.patches[count.index].content)
+}
+
+resource "null_resource" "apply_patches" {
+  depends_on = [ local_file.manifest_yaml ]
+  count = length(var.patches)
+  triggers = { manifest_yaml = local_file.manifest_yaml.id }
+  
+  provisioner "local-exec" {
+    command = "kubectl patch ${var.patches[count.index].object} -n ${kubernetes_namespace.primary_namespace.id} --patch-file ${local_file.patch_jsons[count.index].filename}"
+  }
+}
