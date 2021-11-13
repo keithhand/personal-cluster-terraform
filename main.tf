@@ -125,6 +125,31 @@ locals {
         }
       })]
     }
+    nfs_provisioner = {
+      directories = {
+        generated = "${local.helm_apps_root_dir}/nfs_provisioner"
+      }
+      namespace = "nfs-provisioner"
+      chart = "nfs-subdir-external-provisioner/nfs-subdir-external-provisioner"
+      values = [ yamlencode({
+        image = {
+          tag = "v4.0.2"
+        }
+
+        nfs = {
+          server = "10.10.1.1"
+          path = "/mnt/storage/k8s/export"
+          mountOptions = [ "nolock" ]
+        }
+
+        storageClass = {
+          name = "nfs"
+          defaultClass = true
+          pathPattern = "$${.PVC.namespace}/$${.PVC.name}"
+          onDelete = "delete"
+        }
+      })]
+    }
   }
 }
 
