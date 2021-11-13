@@ -4,6 +4,11 @@ terraform {
       source = "local.test/danitso/proxmox"
       version = "0.4.5"
     }
+
+    unifi = {
+      source = "paultyng/unifi"
+      version = "0.34.0"
+    }
   }
 }
 
@@ -48,4 +53,17 @@ resource "proxmox_virtual_environment_vm" "node" {
   operating_system {
     type = "l26"
   }
+}
+
+data "unifi_network" "k8s_network" {
+  name = "Server - Kubernetes"
+}
+
+resource "unifi_user" "node" {
+  count = length(proxmox_virtual_environment_vm.node)
+  mac = proxmox_virtual_environment_vm.node[count.index].mac_addresses[0]
+  name = proxmox_virtual_environment_vm.node[count.index].name
+  fixed_ip = "10.100.${local.sub_id}.${count.index+1}"
+  network_id = data.unifi_network.k8s_network.id
+  lifecycle { ignore_changes = [ ip ] }
 }
