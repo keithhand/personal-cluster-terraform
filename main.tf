@@ -108,3 +108,19 @@ module "k8s_apps" {
   patches = lookup(each.value, "patches", [])
   get_output_secrets = lookup(each.value, "get_output_secrets", [])
 }
+
+locals {
+  helm_apps_root_dir = "./helm_apps"
+  helm_apps = {
+  }
+}
+
+module "helm_apps" {
+  depends_on = [ module.k8s_apps ]
+  for_each = local.helm_apps
+  source = "./modules/helm_template"
+  directories = each.value.directories
+  namespace = each.value.namespace
+  chart = each.value.chart
+  values = each.value.values
+}
