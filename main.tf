@@ -67,3 +67,21 @@ module "talos_os" {
     module.worker_nodes.nodes.details
   ])
 }
+
+locals {
+  k8s_apps_root_dir = "./k8s_apps"
+  k8s_apps = {
+  }
+}
+
+module "k8s_apps" {
+  depends_on = [ module.talos_os ]
+  for_each = local.k8s_apps
+  source = "./modules/kubernetes_template"
+  directories = each.value.directories
+  namespace = each.value.namespace
+  manifest_url = each.value.manifest_url
+  additional_manifests = lookup(each.value, "additional_manifests", [])
+  patches = lookup(each.value, "patches", [])
+  get_output_secrets = lookup(each.value, "get_output_secrets", [])
+}
