@@ -23,3 +23,23 @@ resource "null_resource" "entrypoint_talos_node_yaml" {
     }
   }
 }
+
+resource "local_file" "config_talosconfig" {
+  filename = "${var.directories.generated}/talosconfig"
+  content = templatefile("${var.directories.templates}/talosconfig.yaml", { 
+    cluster_name = var.cluster_name
+    cluster_endpoint = var.cluster_endpoint 
+  })
+
+  provisioner "local-exec" {
+    command = "cp $HOME/.talos/config $HOME/.talos/config.b | true && cp ${self.filename} $HOME/.talos/config"
+  }
+}
+
+resource "null_resource" "config_node_ips" {
+  triggers = { talosconfig = local_file.config_talosconfig.id }
+
+  provisioner "local-exec" {
+    command = "talosctl config node ${join(" ", var.nodes.*.ip)}"
+  }
+}
