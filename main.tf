@@ -47,3 +47,23 @@ module "worker_nodes" {
   }
 }
 
+locals {
+  talos_root_dir = "./talos"
+  talos = {
+    directories = {
+      templates = "${local.talos_root_dir}/templates"
+      generated = "${local.talos_root_dir}/generated"
+    }
+  }
+}
+
+module "talos_os" {
+  source = "./modules/talos_os"
+  directories = local.talos.directories
+  cluster_name = local.cluster_name
+  cluster_endpoint = local.cluster_endpoint
+  nodes = flatten([ 
+    module.master_nodes.nodes.details, 
+    module.worker_nodes.nodes.details
+  ])
+}
