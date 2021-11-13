@@ -1,4 +1,8 @@
 locals {
+  name = var.namespace
+  chart = split("/", var.chart)
+  chart_repo = local.chart[0]
+  chart_name = join("/", slice(local.chart, 1, length(local.chart)))
   generated_dir = "${var.directories.generated}/${var.namespace}"
 }
 
@@ -17,4 +21,12 @@ resource "local_file" "values_yaml_d" {
 resource "local_file" "values_yaml" {
   filename = "${local.generated_dir}/values.yaml"
   content = join("---\n", local_file.values_yaml_d.*.content)
+}
+
+resource "helm_release" "chart" {
+  name = local.name
+  namespace = kubernetes_namespace.chart_namespace.id
+  repository = local.chart_repo
+  chart = local.chart_name
+  values = var.values
 }
