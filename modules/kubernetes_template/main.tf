@@ -47,3 +47,11 @@ resource "null_resource" "apply_patches" {
     command = "kubectl patch ${var.patches[count.index].object} -n ${kubernetes_namespace.primary_namespace.id} --patch-file ${local_file.patch_jsons[count.index].filename}"
   }
 }
+
+data "kubernetes_secret" "output_secrets" {
+  count = length(var.get_output_secrets)
+  metadata {
+    name = var.get_output_secrets[count.index].name
+    namespace = kubernetes_namespace.primary_namespace.id
+  }
+}
