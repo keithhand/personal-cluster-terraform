@@ -6,7 +6,7 @@ metadata:
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
-  project: default
+  project: game-servers
   source:
     repoURL: https://itzg.github.io/minecraft-server-charts
     chart: minecraft
