@@ -1,0 +1,12 @@
+"image":
+  "tag": "v4.0.2"
+"nfs":
+  "mountOptions":
+  - "nolock"
+  "path": "/mnt/storage/k8s/export"
+  "server": "10.10.1.1"
+"storageClass":
+  "defaultClass": true
+  "name": "nfs"
+  "onDelete": "delete"
+  "pathPattern": "${.PVC.namespace}/${.PVC.name}"

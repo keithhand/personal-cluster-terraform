@@ -1,6 +1,6 @@
+.vscode/
+
 *.tfstate*
 .terra*
 
 talos/generated/*
-k8s_apps/*
-helm_apps/*

@@ -1,0 +1,5 @@
+"controller":
+  "service":
+    "externalIPs":
+    - "10.100.3.0"
+  "watchIngressWithoutClass": true
