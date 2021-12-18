@@ -1,0 +1,65 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ddclient
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://k8s-at-home.com/charts/
+    chart: ddclient
+    targetRevision: "4.0.2"
+    helm:
+      values: |
+        config: |
+          daemon=600
+          use=web
+          web=dynamicdns.park-your-domain.com/getip
+          protocol=cloudflare
+          ssl=yes
+          ttl=1
+          login=${CF_EMAIL}
+          password=${CF_TOKEN}
+          zone=${ZONE}
+          ${DOMAIN}.${ZONE}
+        initContainers:
+          - name: envsubst-config
+            image: alpine
+            command:
+              - "/bin/sh"
+              - "-c"
+              - "apk add gettext && envsubst < /ddclient.conf > /config/ddclient.conf"
+            env:
+              - name: ZONE
+                value: "khand.dev"
+              - name: DOMAIN
+                value: "home"
+              - name: CF_EMAIL
+                valueFrom:
+                  secretKeyRef:
+                    name: cloudflare
+                    key: email
+              - name: CF_TOKEN
+                valueFrom:
+                  secretKeyRef:
+                    name: cloudflare
+                    key: token
+            volumeMounts:
+              - mountPath: /ddclient.conf
+                name: ddclient-settings
+                subPath: ddclient.conf
+              - mountPath: /config
+                name: shared
+        persistence:
+          shared:
+            enabled: true
+            mountPath: "/config"
+  destination:
+    namespace: ddclient
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
