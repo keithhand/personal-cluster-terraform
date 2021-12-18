@@ -15,3 +15,8 @@ variable "chart" {
 variable "values" {
   default = []
 }
+
+variable "additional_manifests" {
+  type = list(string)
+  default = []
+}
