@@ -150,6 +150,35 @@ locals {
         }
       })]
     }
+    argo_cd = {
+      directories = {
+        generated = "${local.helm_apps_root_dir}/argo_cd"
+      }
+      namespace = "argocd"
+      chart = "argo/argo-cd"
+      additional_manifests = [
+        <<-EOT
+          apiVersion: argoproj.io/v1alpha1
+          kind: Application
+          metadata:
+            name: application-repo
+            namespace: argocd
+          spec:
+            destination:
+              namespace: argocd
+              server: 'https://kubernetes.default.svc'
+            source:
+              path: argocd_apps
+              repoURL: 'https://github.com/keithhand/personal-cluster-terraform.git'
+              targetRevision: HEAD
+            project: default
+            syncPolicy:
+              automated:
+                prune: true
+                selfHeal: true
+        EOT
+      ]
+    }
   }
 }
 
@@ -160,5 +189,6 @@ module "helm_apps" {
   directories = each.value.directories
   namespace = each.value.namespace
   chart = each.value.chart
-  values = each.value.values
+  values = lookup(each.value, "values", [])
+  additional_manifests = lookup(each.value, "additional_manifests", [])
 }
