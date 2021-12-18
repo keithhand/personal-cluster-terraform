@@ -33,7 +33,7 @@ spec:
           dataDir:
             enabled: true
   destination:
-    namespace: minecraft
+    namespace: games-minecraft
     server: https://kubernetes.default.svc
   syncPolicy:
     automated:
