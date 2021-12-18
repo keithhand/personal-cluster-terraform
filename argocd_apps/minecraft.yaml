@@ -1,0 +1,41 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: minecraft
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://itzg.github.io/minecraft-server-charts
+    chart: minecraft
+    targetRevision: "3.4.2"
+    helm:
+      values: |
+        strategyType: "RollingUpdate"
+        resources:
+          requests:
+            memory: "2048Mi"
+            cpu: "500m"
+        minecraftServer:
+          version: "1.17.1"
+          type: "BUKKIT"
+          icon: "https://i.etsystatic.com/7478304/r/il/4952e3/1413209562/il_fullxfull.1413209562_lkgr.jpg"
+          motd: "hello"
+          pvp: true
+          memory: "2048M"
+          difficulty: "hard"
+          serviceType: "LoadBalancer"
+          ops: "Razul_,DatsRenegade"
+          eula: true
+        persistence:
+          dataDir:
+            enabled: true
+  destination:
+    namespace: minecraft
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
