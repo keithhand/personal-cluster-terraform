@@ -177,6 +177,20 @@ locals {
                 prune: true
                 selfHeal: true
         EOT
+        ,
+        <<-EOT
+          apiVersion: argoproj.io/v1alpha1
+          kind: AppProject
+          metadata:
+            name: game-servers
+            namespace: argocd
+          spec:
+            sourceRepos:
+              - '*'
+            destinations:
+              - server: 'https://kubernetes.default.svc'
+                namespace: 'games-*'
+        EOT
       ]
     }
   }
