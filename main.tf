@@ -112,6 +112,41 @@ module "k8s_apps" {
 locals {
   helm_apps_root_dir = "./helm_apps"
   helm_apps = {
+    cert_manager = {
+      directories = {
+        generated = "${local.helm_apps_root_dir}/cert_manager"
+      }
+      namespace = "cert-manager"
+      chart = {
+        name = "jetstack/cert-manager"
+        version = "1.6.1"
+      }
+      values = [ yamlencode({
+        installCRDs = true
+      })]
+      additional_manifests = [
+        <<-EOT
+          apiVersion: cert-manager.io/v1
+          kind: ClusterIssuer
+          metadata:
+            name: khand-dev-issuer
+            namespace: cert-manager
+          spec:
+            acme:
+              email: keith@hand.technology
+              server: https://acme-v02.api.letsencrypt.org/directory
+              privateKeySecretRef:
+                name: wildcard-khand-dev-issuer-key
+              solvers:
+              - dns01:
+                  cloudflare:
+                    email: keith@hand.technology
+                    apiTokenSecretRef:
+                      name: cloudflare-api
+                      key: token
+        EOT
+      ]
+    }
     ingress_nginx = {
       directories = {
         generated = "${local.helm_apps_root_dir}/ingress_nginx"
@@ -125,8 +160,29 @@ locals {
         controller = {
           watchIngressWithoutClass = true
           service = { externalIPs = [ "10.100.3.0" ] }
+          config: {
+            "force-ssl-redirect" = "true"
+          }
+          extraArgs: { "default-ssl-certificate" = "ingress-nginx/wildcard-khand-dev-tls" }
         }
       })]
+      additional_manifests = [
+        <<-EOT
+          apiVersion: cert-manager.io/v1
+          kind: Certificate
+          metadata:
+            name: wildcard-khand-dev-tls
+            namespace: ingress-nginx
+          spec:
+            secretName: wildcard-khand-dev-tls
+            issuerRef:
+              name: khand-dev-issuer
+              kind: ClusterIssuer
+            dnsNames:
+            - khand.dev
+            - '*.khand.dev'
+        EOT
+      ]
     }
     nfs_provisioner = {
       directories = {

@@ -1,0 +1,18 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: khand-dev-issuer
+  namespace: cert-manager
+spec:
+  acme:
+    email: keith@hand.technology
+    server: https://acme-v02.api.letsencrypt.org/directory
+    privateKeySecretRef:
+      name: wildcard-khand-dev-issuer-key
+    solvers:
+    - dns01:
+        cloudflare:
+          email: keith@hand.technology
+          apiTokenSecretRef:
+            name: cloudflare-api
+            key: token

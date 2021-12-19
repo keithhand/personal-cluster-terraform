@@ -1,4 +1,8 @@
 "controller":
+  "config":
+    "force-ssl-redirect": "true"
+  "extraArgs":
+    "default-ssl-certificate": "ingress-nginx/wildcard-khand-dev-tls"
   "service":
     "externalIPs":
     - "10.100.3.0"

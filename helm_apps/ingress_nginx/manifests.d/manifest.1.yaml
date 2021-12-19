@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: wildcard-khand-dev-tls
+  namespace: ingress-nginx
+spec:
+  secretName: wildcard-khand-dev-tls
+  issuerRef:
+    name: khand-dev-issuer
+    kind: ClusterIssuer
+  dnsNames:
+  - khand.dev
+  - '*.khand.dev'
