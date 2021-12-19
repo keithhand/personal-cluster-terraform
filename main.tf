@@ -124,28 +124,6 @@ locals {
       values = [ yamlencode({
         installCRDs = true
       })]
-      additional_manifests = [
-        <<-EOT
-          apiVersion: cert-manager.io/v1
-          kind: ClusterIssuer
-          metadata:
-            name: khand-dev-issuer
-            namespace: cert-manager
-          spec:
-            acme:
-              email: keith@hand.technology
-              server: https://acme-v02.api.letsencrypt.org/directory
-              privateKeySecretRef:
-                name: wildcard-khand-dev-issuer-key
-              solvers:
-              - dns01:
-                  cloudflare:
-                    email: keith@hand.technology
-                    apiTokenSecretRef:
-                      name: cloudflare-api
-                      key: token
-        EOT
-      ]
     }
     ingress_nginx = {
       directories = {
@@ -166,23 +144,6 @@ locals {
           extraArgs: { "default-ssl-certificate" = "ingress-nginx/wildcard-khand-dev-tls" }
         }
       })]
-      additional_manifests = [
-        <<-EOT
-          apiVersion: cert-manager.io/v1
-          kind: Certificate
-          metadata:
-            name: wildcard-khand-dev-tls
-            namespace: ingress-nginx
-          spec:
-            secretName: wildcard-khand-dev-tls
-            issuerRef:
-              name: khand-dev-issuer
-              kind: ClusterIssuer
-            dnsNames:
-            - khand.dev
-            - '*.khand.dev'
-        EOT
-      ]
     }
     nfs_provisioner = {
       directories = {
@@ -221,42 +182,6 @@ locals {
         name = "argo/argo-cd"
         version = "3.29.0"
       }
-      additional_manifests = [
-        <<-EOT
-          apiVersion: argoproj.io/v1alpha1
-          kind: Application
-          metadata:
-            name: application-repo
-            namespace: argocd
-          spec:
-            destination:
-              namespace: argocd
-              server: 'https://kubernetes.default.svc'
-            source:
-              path: argocd_apps
-              repoURL: 'https://github.com/keithhand/personal-cluster-terraform.git'
-              targetRevision: HEAD
-            project: default
-            syncPolicy:
-              automated:
-                prune: true
-                selfHeal: true
-        EOT
-        ,
-        <<-EOT
-          apiVersion: argoproj.io/v1alpha1
-          kind: AppProject
-          metadata:
-            name: game-servers
-            namespace: argocd
-          spec:
-            sourceRepos:
-              - '*'
-            destinations:
-              - server: 'https://kubernetes.default.svc'
-                namespace: 'games-*'
-        EOT
-      ]
     }
   }
 }
@@ -271,4 +196,106 @@ module "helm_apps" {
   chart_version = lookup(each.value.chart, "version", "")
   values = lookup(each.value, "values", [])
   additional_manifests = lookup(each.value, "additional_manifests", [])
+}
+
+locals {
+  custom_resource_manifests = [
+    {
+      apiVersion = "cert-manager.io/v1"
+      kind = "ClusterIssuer"
+      metadata = {
+        name = "khand-dev"
+      }
+      spec = {
+        acme = {
+          email = "keith@hand.technology"
+          server = "https://acme-v02.api.letsencrypt.org/directory"
+          privateKeySecretRef = {
+            name = "wildcard-khand-dev-clusterissuer-key"
+          }
+          solvers = [{
+            dns01 = {
+              cloudflare = {
+                email = "keith@hand.technology"
+                apiTokenSecretRef = {
+                  name = "cloudflare-api"
+                  key = "token"
+                }
+              }
+            }
+          }]
+        }
+      }
+    },
+    {
+      apiVersion = "cert-manager.io/v1"
+      kind = "Certificate"
+      metadata = {
+        name = "wildcard-khand-dev-tls"
+        namespace = "ingress-nginx"
+      }
+      spec = {
+        secretName = "wildcard-khand-dev-tls"
+        issuerRef = {
+          name = "khand-dev"
+          kind = "ClusterIssuer"
+        }
+        dnsNames = [
+          "khand.dev",
+          "*.khand.dev"
+        ]
+      }
+    },
+    {
+      apiVersion = "argoproj.io/v1alpha1"
+      kind = "AppProject"
+      metadata = {
+        name = "game-servers"
+        namespace = "argocd"
+      }
+      spec = {
+        sourceRepos = [
+          "*"
+        ]
+        destinations = [
+          {
+            server = "https://kubernetes.default.svc"
+            namespace = "games-*"
+          }
+        ]
+      }
+    },
+    {
+      apiVersion = "argoproj.io/v1alpha1"
+      kind = "Application"
+      metadata = {
+        name = "application-repo"
+        namespace = "argocd"
+      }
+      spec = {
+        destination = {
+          namespace = "argocd"
+          server = "https://kubernetes.default.svc"
+        }
+        source = {
+          path = "argocd_apps"
+          repoURL = "https://github.com/keithhand/personal-cluster-terraform.git"
+          targetRevision = "HEAD"
+        }
+        project = "default"
+        syncPolicy = {
+          automated = {
+            prune = "true"
+            selfHeal = "true"
+          }
+        }
+      }
+    },
+  ]
+}
+
+resource "kubernetes_manifest" "custom_resource_manifests" {
+  depends_on = [ module.k8s_apps, module.helm_apps ]
+  count = length(local.custom_resource_manifests)
+  manifest = local.custom_resource_manifests[count.index]
 }
