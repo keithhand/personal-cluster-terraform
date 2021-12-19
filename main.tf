@@ -185,6 +185,28 @@ locals {
         name = "argo/argo-cd"
         version = "3.29.0"
       }
+    vault = {
+      directories = {
+        generated = "${local.helm_apps_root_dir}/vault"
+      }
+      namespace = "vault"
+      chart = {
+        name = "hashicorp/vault"
+        version = "0.18.0"
+      }
+    }
+    external_secrets = {
+      directories = {
+        generated = "${local.helm_apps_root_dir}/external_secrets"
+      }
+      namespace = "external-secrets"
+      chart = {
+        name = "external-secrets/external-secrets"
+        version = "0.3.10"
+      }
+      values = [ yamlencode({
+        installCRDs = true
+      })]
     }
   }
 }
