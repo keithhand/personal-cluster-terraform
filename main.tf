@@ -78,20 +78,23 @@ locals {
         generated = "${local.k8s_apps_root_dir}/metal_lb"
       }
       additional_manifests = [
-        <<-EOT
-          apiVersion: v1
-          kind: ConfigMap
-          metadata:
-            namespace: metallb-system
-            name: config
-          data:
-            config: |
-              address-pools:
-              - name: default
-                protocol: layer2
-                addresses:
+        {
+          apiVersion = "v1"
+          kind = "ConfigMap"
+          metadata = {
+            namespace = "metallb-system"
+            name = "config"
+          }
+          data = {
+            config = <<-EOT
+              address-pools =
+              - name = default
+                protocol = layer2
+                addresses =
                 - 10.100.3.0/24
-        EOT
+            EOT
+          }
+        }
       ]
     } 
   }

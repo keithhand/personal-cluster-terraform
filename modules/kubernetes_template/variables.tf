@@ -13,7 +13,7 @@ variable "manifest_url" {
 }
 
 variable "additional_manifests" {
-  type = list(string)
+  type = list
   default = []
 }
 

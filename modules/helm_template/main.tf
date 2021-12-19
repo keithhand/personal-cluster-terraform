@@ -35,8 +35,10 @@ resource "helm_release" "chart" {
 resource "local_file" "additional_manifests" {
   count = length(var.additional_manifests)
   filename = "${var.directories.generated}/manifests.d/manifest.${count.index + 1}.yaml"
-  content = var.additional_manifests[count.index]
-  provisioner "local-exec" {
-    command = "kubectl apply -n ${kubernetes_namespace.chart_namespace.id} -f ${self.filename}"
-  }
+  content = yamlencode(var.additional_manifests[count.index])
+}
+
+resource "kubernetes_manifest" "additional_manifests" {
+  count = length(var.additional_manifests)
+  manifest = var.additional_manifests[count.index]
 }
