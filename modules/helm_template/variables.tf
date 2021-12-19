@@ -8,8 +8,13 @@ variable "namespace" {
   type = string
 }
 
-variable "chart" {
+variable "chart_name" {
   type = string
+}
+
+variable "chart_version" {
+  type = string
+  default = ""
 }
 
 variable "values" {

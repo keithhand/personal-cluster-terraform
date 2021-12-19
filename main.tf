@@ -117,7 +117,10 @@ locals {
         generated = "${local.helm_apps_root_dir}/ingress_nginx"
       }
       namespace = "ingress-nginx"
-      chart = "ingress-nginx/ingress-nginx"
+      chart = {
+        name = "ingress-nginx/ingress-nginx"
+        version = "4.0.6"
+      }
       values = [ yamlencode({
         controller = {
           watchIngressWithoutClass = true
@@ -130,7 +133,10 @@ locals {
         generated = "${local.helm_apps_root_dir}/nfs_provisioner"
       }
       namespace = "nfs-provisioner"
-      chart = "nfs-subdir-external-provisioner/nfs-subdir-external-provisioner"
+      chart = {
+        name = "nfs-subdir-external-provisioner/nfs-subdir-external-provisioner"
+        version = "4.0.14"
+      }
       values = [ yamlencode({
         image = {
           tag = "v4.0.2"
@@ -155,7 +161,10 @@ locals {
         generated = "${local.helm_apps_root_dir}/argo_cd"
       }
       namespace = "argocd"
-      chart = "argo/argo-cd"
+      chart = {
+        name = "argo/argo-cd"
+        version = "3.29.0"
+      }
       additional_manifests = [
         <<-EOT
           apiVersion: argoproj.io/v1alpha1
@@ -202,7 +211,8 @@ module "helm_apps" {
   source = "./modules/helm_template"
   directories = each.value.directories
   namespace = each.value.namespace
-  chart = each.value.chart
+  chart_name = each.value.chart.name
+  chart_version = lookup(each.value.chart, "version", "")
   values = lookup(each.value, "values", [])
   additional_manifests = lookup(each.value, "additional_manifests", [])
 }

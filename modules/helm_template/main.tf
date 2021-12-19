@@ -1,6 +1,6 @@
 locals {
   name = var.namespace
-  chart = split("/", var.chart)
+  chart = split("/", var.chart_name)
   chart_repo = local.chart[0]
   chart_name = join("/", slice(local.chart, 1, length(local.chart)))
   generated_dir = "${var.directories.generated}/${var.namespace}"
@@ -29,6 +29,7 @@ resource "helm_release" "chart" {
   repository = local.chart_repo
   chart = local.chart_name
   values = var.values
+  version = var.chart_version
 }
 
 resource "local_file" "additional_manifests" {
