@@ -74,9 +74,7 @@ locals {
     metal_lb = {
       namespace = "metallb-system"
       manifest_url = "https://raw.githubusercontent.com/metallb/metallb/v0.11.0/manifests/metallb.yaml"
-      directories = {
-        generated = "${local.k8s_apps_root_dir}/metal_lb"
-      }
+      directories = { generated = "${local.k8s_apps_root_dir}/metal_lb" }
       additional_manifests = [
         {
           apiVersion = "v1"
@@ -197,18 +195,14 @@ locals {
       })]
     }
     argo_cd = {
-      directories = {
-        generated = "${local.helm_apps_root_dir}/argo_cd"
-      }
+      directories = { generated = "${local.helm_apps_root_dir}/argo_cd" }
       namespace = "argocd"
       chart = {
         name = "argo/argo-cd"
         version = "3.29.0"
       }
     vault = {
-      directories = {
-        generated = "${local.helm_apps_root_dir}/vault"
-      }
+      directories = { generated = "${local.helm_apps_root_dir}/vault" }
       namespace = "vault"
       chart = {
         name = "hashicorp/vault"
@@ -216,17 +210,13 @@ locals {
       }
     }
     external_secrets = {
-      directories = {
-        generated = "${local.helm_apps_root_dir}/external_secrets"
-      }
+      directories = { generated = "${local.helm_apps_root_dir}/external_secrets" }
       namespace = "external-secrets"
       chart = {
         name = "external-secrets/external-secrets"
         version = "0.3.10"
       }
-      values = [ yamlencode({
-        installCRDs = true
-      })]
+      values = [ yamlencode({ installCRDs = true })]
     }
   }
 }
@@ -253,9 +243,7 @@ locals {
         namespace = "argocd"
       }
       spec = {
-        sourceRepos = [
-          "*"
-        ]
+        sourceRepos = [ "*" ]
         destinations = [
           {
             server = "https://kubernetes.default.svc.cluster.local"
@@ -293,9 +281,7 @@ locals {
     {
       apiVersion = "external-secrets.io/v1alpha1"
       kind = "ClusterSecretStore"
-      metadata = {
-        name = "vault-backend"
-      }
+      metadata = { name = "vault-backend" }
       spec = {
         provider = {
           vault = {
