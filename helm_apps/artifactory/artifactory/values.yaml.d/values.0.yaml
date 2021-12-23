@@ -1,0 +1,10 @@
+"artifactory":
+  "ingress":
+    "annotations":
+      "traefik.ingress.kubernetes.io/router.middlewares": "traefik-forward-auth-traefik-forward-auth@kubernetescrd"
+    "enabled": true
+    "hosts":
+    - "art.khand.dev"
+  "nginx":
+    "service":
+      "type": "ClusterIP"

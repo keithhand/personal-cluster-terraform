@@ -242,6 +242,24 @@ locals {
       }
       values = [ yamlencode({ installCRDs = true })]
     }
+    artifactory = {
+      directories = { generated = "${local.helm_apps_root_dir}/artifactory" }
+      namespace = "artifactory"
+      chart = {
+        name = "jfrog/artifactory-oss"
+        version = "107.29.8"
+      }
+      values = [ yamlencode({
+        artifactory = {
+          nginx = { service = { type = "ClusterIP" }}
+          ingress = {
+            enabled = true
+            annotations = { "traefik.ingress.kubernetes.io/router.middlewares": "traefik-forward-auth-traefik-forward-auth@kubernetescrd" }
+            hosts = [ "art.khand.dev" ]
+          }
+        }
+      })]
+    }
   }
 }
 
