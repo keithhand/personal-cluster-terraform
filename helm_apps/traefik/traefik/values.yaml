@@ -28,3 +28,7 @@
         "sans":
         - "*.khand.dev"
       "enabled": true
+"providers":
+  "kubernetesIngress":
+    "publishedService":
+      "enabled": true

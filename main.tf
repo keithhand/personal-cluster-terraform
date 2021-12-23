@@ -124,6 +124,10 @@ locals {
       }
       values = [ yamlencode({
         persistence = { enabled = true }
+        providers = {
+          kubernetesIngress = {
+            publishedService = { enabled = true }}
+        }
         ingressClass = {
           enabled = true
           isDefaultClass = true
