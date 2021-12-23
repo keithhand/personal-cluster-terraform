@@ -1,0 +1,41 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kubecost
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://kubecost.github.io/cost-analyzer/
+    chart: cost-analyzer
+    targetRevision: "1.88.1"
+    helm:
+      values: |
+        kubecostToken:
+        ingress:
+          enabled: true
+          className: "traefik"
+          annotations:
+            traefik.ingress.kubernetes.io/router.middlewares: "traefik-forward-auth-traefik-forward-auth@kubernetescrd"
+          hosts:
+            - "kubecost.khand.dev"
+        kubecostProductConfigs:
+          customPricesEnabled: true
+          defaultModelPricing:
+            enabled: true
+            CPU: "1.39"
+            RAM: "0.13"
+            storage: "0.03"
+          discount: "0"
+          negotiatedDiscount: "0"
+          sharedOverhead: "0"
+          gpuLabelValue: false
+  destination:
+    namespace: kubecost
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
