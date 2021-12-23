@@ -26,6 +26,10 @@ resource "local_file" "manifest_yaml" {
   depends_on = [ kubernetes_namespace.primary_namespace ]
   filename = "${var.directories.generated}/manifest.yaml"
   content = join("---\n", concat([local_file.primary_manifest.content], local_file.additional_manifests.*.content))
+
+  provisioner "local-exec" {
+    command = "kubectl apply -n ${kubernetes_namespace.primary_namespace.id} -f ${self.filename}"
+  }
 }
 
 resource "kubernetes_manifest" "additional_manifests" {
