@@ -1,0 +1,67 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ddclient
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://k8s-at-home.com/charts/
+    chart: ddclient
+    targetRevision: "4.0.2"
+    helm:
+      values: |
+        initContainers:
+          - name: envsubst-secrets
+            image: bhgedigital/envsubst:v1.0-alpine3.6
+            command:
+              - "sh"
+              - "-c"
+              - "envsubst < /defaults/ddclient.conf > /config/ddclient.conf"
+            env:
+              - name: ZONE
+                value: "khand.dev"
+              - name: SUBDOMAIN
+                value: "home"
+              - name: CF_EMAIL
+                valueFrom:
+                  secretKeyRef:
+                    name: "cloudflare-api"
+                    key: "email"
+              - name: CF_GLOBAL_API
+                valueFrom:
+                  secretKeyRef:
+                    name: "cloudflare-api"
+                    key: "token"
+            volumeMounts:
+              - mountPath: /config
+                name: shared
+              - mountPath: /defaults/ddclient.conf
+                name: ddclient-settings
+                subPath: ddclient.conf
+        persistence:
+          shared:
+            enabled: true
+            mountPath: "/config"
+        image:
+          tag: "version-v3.9.1"
+        config: |
+          daemon=600
+          use=web
+          web=dynamicdns.park-your-domain.com/getip
+          protocol=cloudflare
+          ssl=yes
+          ttl=1
+          login=${CF_EMAIL}
+          password=${CF_GLOBAL_API}
+          zone=${ZONE}
+          ${SUBDOMAIN}.${ZONE}
+  destination:
+    namespace: ddclient
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
