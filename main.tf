@@ -115,37 +115,57 @@ module "k8s_apps" {
 locals {
   helm_apps_root_dir = "./helm_apps"
   helm_apps = {
-    cert_manager = {
+    traefik = {
       directories = {
-        generated = "${local.helm_apps_root_dir}/cert_manager"
+        generated = "${local.helm_apps_root_dir}/traefik"
       }
-      namespace = "cert-manager"
+      namespace = "traefik"
       chart = {
-        name = "jetstack/cert-manager"
-        version = "1.6.1"
+        name = "traefik/traefik"
+        version = "10.9.0"
       }
       values = [ yamlencode({
-        installCRDs = true
-      })]
-    }
-    ingress_nginx = {
-      directories = {
-        generated = "${local.helm_apps_root_dir}/ingress_nginx"
-      }
-      namespace = "ingress-nginx"
-      chart = {
-        name = "ingress-nginx/ingress-nginx"
-        version = "4.0.6"
-      }
-      values = [ yamlencode({
-        controller = {
-          watchIngressWithoutClass = true
-          service = { externalIPs = [ "10.100.3.0" ] }
-          config: {
-            "force-ssl-redirect" = "true"
-          }
-          extraArgs: { "default-ssl-certificate" = "ingress-nginx/wildcard-khand-dev-tls" }
+        persistence = { enabled = true }
+        ingressClass = {
+          enabled = true
+          isDefaultClass = true
         }
+        ports = {
+          web = { redirectTo = "websecure" }
+          websecure = {
+            tls = {
+              enabled = true
+              certResolver = "cloudflare"
+              domains = [
+                {
+                  main = "hand.technology"
+                  sans = [ "*.hand.technology" ]
+                },
+                {
+                  main = "khand.dev"
+                  sans = [ "*.khand.dev" ]
+                },
+              ]
+            }
+          }
+        }
+        additionalArguments = [
+          "--certificatesResolvers.cloudflare.acme.dnschallenge=true",
+          "--certificatesResolvers.cloudflare.acme.dnsChallenge.provider=cloudflare",
+          "--certificatesResolvers.cloudflare.acme.email=keith@khand.dev",
+          "--certificatesResolvers.cloudflare.acme.storage=/data/cf.json",
+        ]
+        env = [
+          {
+            name = "CF_DNS_API_TOKEN"
+            valueFrom = {
+              secretKeyRef = {
+                name = "cloudflare-api"
+                key = "token"
+              }
+            }
+          },
+        ]
       })]
     }
     nfs_provisioner = {
@@ -226,52 +246,6 @@ module "helm_apps" {
 locals {
   custom_resource_manifests = [
     {
-      apiVersion = "cert-manager.io/v1"
-      kind = "ClusterIssuer"
-      metadata = {
-        name = "khand-dev"
-      }
-      spec = {
-        acme = {
-          email = "keith@hand.technology"
-          server = "https://acme-v02.api.letsencrypt.org/directory"
-          privateKeySecretRef = {
-            name = "wildcard-khand-dev-clusterissuer-key"
-          }
-          solvers = [{
-            dns01 = {
-              cloudflare = {
-                email = "keith@hand.technology"
-                apiTokenSecretRef = {
-                  name = "cloudflare-api"
-                  key = "token"
-                }
-              }
-            }
-          }]
-        }
-      }
-    },
-    {
-      apiVersion = "cert-manager.io/v1"
-      kind = "Certificate"
-      metadata = {
-        name = "wildcard-khand-dev-tls"
-        namespace = "ingress-nginx"
-      }
-      spec = {
-        secretName = "wildcard-khand-dev-tls"
-        issuerRef = {
-          name = "khand-dev"
-          kind = "ClusterIssuer"
-        }
-        dnsNames = [
-          "khand.dev",
-          "*.khand.dev"
-        ]
-      }
-    },
-    {
       apiVersion = "argoproj.io/v1alpha1"
       kind = "AppProject"
       metadata = {
@@ -314,6 +288,54 @@ locals {
             selfHeal = "true"
           }
         }
+      }
+    },
+    {
+      apiVersion = "external-secrets.io/v1alpha1"
+      kind = "ClusterSecretStore"
+      metadata = {
+        name = "vault-backend"
+      }
+      spec = {
+        provider = {
+          vault = {
+            server = "http://vault.vault.svc.cluster.local:8200"
+            path = "kv"
+            version = "v2"
+            auth = {
+              tokenSecretRef = {
+                name = "vault-token"
+                namespace = "external-secrets"
+                key = "token"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      apiVersion = "external-secrets.io/v1alpha1"
+      kind = "ExternalSecret"
+      metadata = {
+        name = "cloudflare-api"
+        namespace = "traefik"
+      }
+      spec = {
+        refreshInterval = "15s"
+        target = {}
+        secretStoreRef = {
+          name = "vault-backend"
+          kind = "ClusterSecretStore"
+        }
+        data = [
+          {
+            secretKey = "token"
+            remoteRef = {
+              key = "cloudflare"
+              property = "api-token"
+            }
+          },
+        ]
       }
     },
   ]

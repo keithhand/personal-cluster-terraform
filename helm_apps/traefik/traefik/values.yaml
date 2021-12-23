@@ -1,0 +1,30 @@
+"additionalArguments":
+- "--certificatesResolvers.cloudflare.acme.dnschallenge=true"
+- "--certificatesResolvers.cloudflare.acme.dnsChallenge.provider=cloudflare"
+- "--certificatesResolvers.cloudflare.acme.email=keith@khand.dev"
+- "--certificatesResolvers.cloudflare.acme.storage=/data/cf.json"
+"env":
+- "name": "CF_DNS_API_TOKEN"
+  "valueFrom":
+    "secretKeyRef":
+      "key": "token"
+      "name": "cloudflare-api"
+"ingressClass":
+  "enabled": true
+  "isDefaultClass": true
+"persistence":
+  "enabled": true
+"ports":
+  "web":
+    "redirectTo": "websecure"
+  "websecure":
+    "tls":
+      "certResolver": "cloudflare"
+      "domains":
+      - "main": "hand.technology"
+        "sans":
+        - "*.hand.technology"
+      - "main": "khand.dev"
+        "sans":
+        - "*.khand.dev"
+      "enabled": true
