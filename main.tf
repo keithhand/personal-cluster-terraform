@@ -246,7 +246,7 @@ locals {
         sourceRepos = [ "*" ]
         destinations = [
           {
-            server = "https://kubernetes.default.svc.cluster.local"
+            server = "https://kubernetes.default.svc"
             namespace = "games-*"
           }
         ]
@@ -262,7 +262,7 @@ locals {
       spec = {
         destination = {
           namespace = "argocd"
-          server = "https://kubernetes.default.svc.cluster.local"
+          server = "https://kubernetes.default.svc"
         }
         source = {
           path = "argocd_apps"
