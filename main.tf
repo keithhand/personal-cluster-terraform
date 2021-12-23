@@ -1,6 +1,6 @@
 locals {
   cluster_name = "moisty-boi"
-  cluster_endpoint = "kube.hand.technology"
+  cluster_endpoint = "10.0.0.1"
   master = {
     count = 3
     mem_gb = 4
@@ -258,7 +258,7 @@ locals {
         ]
         destinations = [
           {
-            server = "https://kubernetes.default.svc"
+            server = "https://kubernetes.default.svc.cluster.local"
             namespace = "games-*"
           }
         ]
@@ -274,7 +274,7 @@ locals {
       spec = {
         destination = {
           namespace = "argocd"
-          server = "https://kubernetes.default.svc"
+          server = "https://kubernetes.default.svc.cluster.local"
         }
         source = {
           path = "argocd_apps"
