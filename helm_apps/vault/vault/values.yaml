@@ -1,8 +1,7 @@
 "server":
   "ingress":
+    "annotations":
+      "traefik.ingress.kubernetes.io/router.middlewares": "traefik-forward-auth-traefik-forward-auth@kubernetescrd"
     "enabled": true
     "hosts":
     - "host": "vault.khand.dev"
-    "tls":
-    - "hosts":
-      - "vault.khand.dev"

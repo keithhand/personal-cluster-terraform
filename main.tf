@@ -201,6 +201,17 @@ locals {
         name = "argo/argo-cd"
         version = "3.29.0"
       }
+      values = [ yamlencode({
+        server = {
+          extraArgs = [ "--insecure" ]
+          ingress = {
+            enabled = true
+            annotations = { "traefik.ingress.kubernetes.io/router.middlewares": "traefik-forward-auth-traefik-forward-auth@kubernetescrd" }
+            hosts = [ "argo.khand.dev" ]
+          }
+        }
+      })]
+    }
     vault = {
       directories = { generated = "${local.helm_apps_root_dir}/vault" }
       namespace = "vault"
@@ -208,6 +219,15 @@ locals {
         name = "hashicorp/vault"
         version = "0.18.0"
       }
+      values = [ yamlencode({
+        server = {
+          ingress = {
+            enabled = true
+            annotations = { "traefik.ingress.kubernetes.io/router.middlewares": "traefik-forward-auth-traefik-forward-auth@kubernetescrd" }
+            hosts = [{ host = "vault.khand.dev" }]
+          }
+        }
+      })]
     }
     external_secrets = {
       directories = { generated = "${local.helm_apps_root_dir}/external_secrets" }
