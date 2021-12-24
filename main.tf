@@ -94,7 +94,7 @@ locals {
           }
         }
       ]
-    } 
+    }
   }
 }
 
@@ -259,6 +259,23 @@ locals {
           }
         }
       })]
+    }
+    grafana = {
+      directories = { generated = "${local.helm_apps_root_dir}/grafana" }
+      namespace = "grafana"
+      chart = {
+        name = "grafana/grafana"
+        version = "6.20.3"
+      }
+      values = [ yamlencode({
+        persistence = { enabled = true }
+        initChownData = { enabled = false }
+        ingress = {
+          enabled = true
+          annotations = { "traefik.ingress.kubernetes.io/router.middlewares": "traefik-forward-auth-traefik-forward-auth@kubernetescrd" }
+          hosts = [ "logs.khand.dev" ]
+        }
+      })] 
     }
   }
 }
