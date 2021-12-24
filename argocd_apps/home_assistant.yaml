@@ -1,0 +1,35 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: home-assistant
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://k8s-at-home.com/charts/
+    chart: home-assistant
+    targetRevision: "11.2.1"
+    helm:
+      values: |
+        persistence:
+          config:
+            enabled: true
+        ingress:
+          main:
+            enabled: true
+            annotations:
+              traefik.ingress.kubernetes.io/router.middlewares: "traefik-forward-auth-traefik-forward-auth@kubernetescrd"
+            ingressClassName: traefik
+            hosts:
+            - host: "home.khand.dev"
+              paths:
+                - path: "/"
+  destination:
+    namespace: home-assistant
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
