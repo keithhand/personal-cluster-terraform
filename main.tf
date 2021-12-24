@@ -258,6 +258,7 @@ locals {
             annotations = { "traefik.ingress.kubernetes.io/router.middlewares": "traefik-forward-auth-traefik-forward-auth@kubernetescrd" }
             hosts = [ "art.khand.dev" ]
           }
+          postgresql = { existingSecret = "artifactory-postgresql" }
         }
       })]
     }
@@ -379,6 +380,38 @@ locals {
             remoteRef = {
               key = "cloudflare"
               property = "api-token"
+            }
+          },
+        ]
+      }
+    },
+    {
+      apiVersion = "external-secrets.io/v1alpha1"
+      kind = "ExternalSecret"
+      metadata = {
+        name = "artifactory-postgresql"
+        namespace = "artifactory"
+      }
+      spec = {
+        refreshInterval = "15s"
+        target = {}
+        secretStoreRef = {
+          name = "vault-backend"
+          kind = "ClusterSecretStore"
+        }
+        data = [
+          {
+            secretKey = "postgresql-password"
+            remoteRef = {
+              key = "artifactory"
+              property = "postgresql-password"
+            }
+          },
+          {
+            secretKey = "postgresql-postgres-password"
+            remoteRef = {
+              key = "artifactory"
+              property = "postgresql-postgres-password"
             }
           },
         ]

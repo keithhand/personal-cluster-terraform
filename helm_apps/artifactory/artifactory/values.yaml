@@ -8,3 +8,5 @@
   "nginx":
     "service":
       "type": "ClusterIP"
+  "postgresql":
+    "existingSecret": "artifactory-postgresql"
