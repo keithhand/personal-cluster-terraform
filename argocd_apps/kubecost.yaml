@@ -28,6 +28,8 @@ spec:
             traefik.ingress.kubernetes.io/router.middlewares: "traefik-forward-auth-traefik-forward-auth@kubernetescrd"
           hosts:
             - "kubecost.khand.dev"
+        persistentVolume:
+          storageClass: "nfs"
         kubecostProductConfigs:
           customPricesEnabled: true
           defaultModelPricing:
