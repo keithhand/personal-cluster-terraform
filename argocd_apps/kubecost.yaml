@@ -13,6 +13,13 @@ spec:
     targetRevision: "1.88.1"
     helm:
       values: |
+        global:
+          prometheus:
+            enabled: false
+            fqdn: http://grafana-prometheus-server.grafana.svc
+          grafana:
+            enabled: false
+            domainName: grafana.grafana.svc
         kubecostToken:
         ingress:
           enabled: true
