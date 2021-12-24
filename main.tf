@@ -85,10 +85,10 @@ locals {
           }
           data = {
             config = <<-EOT
-              address-pools =
-              - name = default
-                protocol = layer2
-                addresses =
+              address-pools:
+              - name: default
+                protocol: layer2
+                addresses:
                 - 10.100.3.0/24
             EOT
           }

@@ -448,10 +448,10 @@ spec:
 "apiVersion": "v1"
 "data":
   "config": |
-    address-pools =
-    - name = default
-      protocol = layer2
-      addresses =
+    address-pools:
+    - name: default
+      protocol: layer2
+      addresses:
       - 10.100.3.0/24
 "kind": "ConfigMap"
 "metadata":
