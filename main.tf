@@ -227,6 +227,7 @@ locals {
         server = {
           ingress = {
             enabled = true
+            ingressClassName = "traefik"
             annotations = { "traefik.ingress.kubernetes.io/router.middlewares": "traefik-forward-auth-traefik-forward-auth@kubernetescrd" }
             hosts = [{ host = "vault.khand.dev" }]
           }

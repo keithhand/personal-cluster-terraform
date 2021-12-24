@@ -5,3 +5,4 @@
     "enabled": true
     "hosts":
     - "host": "vault.khand.dev"
+    "ingressClassName": "traefik"
