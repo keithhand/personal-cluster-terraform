@@ -1,10 +1,17 @@
-"ingress":
-  "annotations":
-    "traefik.ingress.kubernetes.io/router.middlewares": "traefik-forward-auth-traefik-forward-auth@kubernetescrd"
+"grafana":
   "enabled": true
-  "hosts":
-  - "logs.khand.dev"
-"initChownData":
-  "enabled": false
-"persistence":
+  "ingress":
+    "annotations":
+      "traefik.ingress.kubernetes.io/router.middlewares": "traefik-forward-auth-traefik-forward-auth@kubernetescrd"
+    "enabled": true
+    "hosts":
+    - "logs.khand.dev"
+  "initChownData":
+    "enabled": false
+  "persistence":
+    "enabled": true
+"loki":
+  "persistence":
+    "enabled": true
+"prometheus":
   "enabled": true

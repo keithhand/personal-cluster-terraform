@@ -262,21 +262,26 @@ locals {
         }
       })]
     }
-    grafana = {
+    grafana_loki_stack = {
       directories = { generated = "${local.helm_apps_root_dir}/grafana" }
       namespace = "grafana"
       chart = {
-        name = "grafana/grafana"
-        version = "6.20.3"
+        name = "grafana/loki-stack"
+        version = "2.5.0"
       }
       values = [ yamlencode({
-        persistence = { enabled = true }
-        initChownData = { enabled = false }
-        ingress = {
+        grafana = {
           enabled = true
-          annotations = { "traefik.ingress.kubernetes.io/router.middlewares": "traefik-forward-auth-traefik-forward-auth@kubernetescrd" }
-          hosts = [ "logs.khand.dev" ]
+          persistence = { enabled = true }
+          ingress = {
+            enabled = true
+            annotations = { "traefik.ingress.kubernetes.io/router.middlewares": "traefik-forward-auth-traefik-forward-auth@kubernetescrd" }
+            hosts = [ "logs.khand.dev" ]
+          }
+          initChownData = { enabled = false }
         }
+        prometheus = { enabled = true }
+        loki = { persistence = { enabled = true }}
       })] 
     }
   }
