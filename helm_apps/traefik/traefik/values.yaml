@@ -12,6 +12,9 @@
 "ingressClass":
   "enabled": true
   "isDefaultClass": true
+"logs":
+  "general":
+    "level": "INFO"
 "persistence":
   "enabled": true
 "ports":
@@ -27,6 +30,7 @@
       - "main": "khand.dev"
         "sans":
         - "*.khand.dev"
+        - "*.repo.khand.dev"
       "enabled": true
 "providers":
   "kubernetesIngress":

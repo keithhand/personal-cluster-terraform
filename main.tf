@@ -123,6 +123,7 @@ locals {
         version = "10.9.0"
       }
       values = [ yamlencode({
+        # logs = { general = { level = "INFO" }}
         persistence = { enabled = true }
         providers = {
           kubernetesIngress = {
@@ -145,7 +146,10 @@ locals {
                 },
                 {
                   main = "khand.dev"
-                  sans = [ "*.khand.dev" ]
+                  sans = [
+                    "*.khand.dev",
+                    "*.repo.khand.dev",
+                  ]
                 },
               ]
             }
@@ -247,7 +251,7 @@ locals {
       directories = { generated = "${local.helm_apps_root_dir}/artifactory" }
       namespace = "artifactory"
       chart = {
-        name = "jfrog/artifactory-oss"
+        name = "jfrog/artifactory-jcr"
         version = "107.29.8"
       }
       values = [ yamlencode({
@@ -256,7 +260,7 @@ locals {
           ingress = {
             enabled = true
             annotations = { "traefik.ingress.kubernetes.io/router.middlewares": "traefik-forward-auth-traefik-forward-auth@kubernetescrd" }
-            hosts = [ "art.khand.dev" ]
+            hosts = [ "repo.khand.dev" ]
           }
           postgresql = { existingSecret = "artifactory-postgresql" }
         }
