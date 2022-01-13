@@ -1,3 +1,11 @@
+"injector":
+  "resources":
+    "limits":
+      "cpu": "100m"
+      "memory": "200Mi"
+    "requests":
+      "cpu": "10m"
+      "memory": "20Mi"
 "server":
   "ingress":
     "annotations":
@@ -6,3 +14,10 @@
     "hosts":
     - "host": "vault.khand.dev"
     "ingressClassName": "traefik"
+  "resources":
+    "limits":
+      "cpu": "200m"
+      "memory": "200Mi"
+    "requests":
+      "cpu": "60m"
+      "memory": "62.7Mi"

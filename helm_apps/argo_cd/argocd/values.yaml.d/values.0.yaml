@@ -1,3 +1,35 @@
+"controller":
+  "resources":
+    "limits":
+      "cpu": "200m"
+      "memory": "500Mi"
+    "requests":
+      "cpu": "46m"
+      "memory": "251.9Mi"
+"dex":
+  "resources":
+    "limits":
+      "cpu": "100m"
+      "memory": "200Mi"
+    "requests":
+      "cpu": "10m"
+      "memory": "22Mi"
+"redis":
+  "resources":
+    "limits":
+      "cpu": "100m"
+      "memory": "200Mi"
+    "requests":
+      "cpu": "10m"
+      "memory": "20Mi"
+"repoServer":
+  "resources":
+    "limits":
+      "cpu": "100m"
+      "memory": "200Mi"
+    "requests":
+      "cpu": "10m"
+      "memory": "45.7Mi"
 "server":
   "extraArgs":
   - "--insecure"
@@ -7,3 +39,10 @@
     "enabled": true
     "hosts":
     - "argo.khand.dev"
+  "resources":
+    "limits":
+      "cpu": "100m"
+      "memory": "200Mi"
+    "requests":
+      "cpu": "10m"
+      "memory": "59.7Mi"

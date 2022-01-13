@@ -12,9 +12,6 @@
 "ingressClass":
   "enabled": true
   "isDefaultClass": true
-"logs":
-  "general":
-    "level": "INFO"
 "persistence":
   "enabled": true
 "ports":
@@ -36,3 +33,10 @@
   "kubernetesIngress":
     "publishedService":
       "enabled": true
+"resources":
+  "limits":
+    "cpu": "100m"
+    "memory": "200Mi"
+  "requests":
+    "cpu": "10m"
+    "memory": "65.4Mi"

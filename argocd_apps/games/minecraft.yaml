@@ -16,10 +16,13 @@ spec:
         strategyType: "RollingUpdate"
         resources:
           requests:
-            memory: "2048Mi"
-            cpu: "500m"
+            cpu: "687m"
+            memory: "4.6Gi"
+          limits:
+            cpu: "2"
+            memory: "4.6Gi"
         minecraftServer:
-          version: "1.17.1"
+          version: "1.18.1"
           type: "BUKKIT"
           icon: "https://i.etsystatic.com/7478304/r/il/4952e3/1413209562/il_fullxfull.1413209562_lkgr.jpg"
           motd: "hello"

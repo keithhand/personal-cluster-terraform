@@ -5,6 +5,13 @@
   - "nolock"
   "path": "/mnt/storage/k8s/export"
   "server": "10.10.1.1"
+"resources":
+  "limits":
+    "cpu": "100m"
+    "memory": "200Mi"
+  "requests":
+    "cpu": "10m"
+    "memory": "72.2Mi"
 "storageClass":
   "defaultClass": true
   "name": "nfs"

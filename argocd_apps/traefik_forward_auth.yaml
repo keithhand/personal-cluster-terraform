@@ -19,7 +19,7 @@ spec:
           google: 
             enabled: true
         restrictions:
-          domain: "khand.dev"
+          domain: "kubecost.com,khand.dev"
           whitelist: "rkeithhand@gmail.com"
         secret: "-"
         env:
@@ -40,6 +40,13 @@ spec:
               secretKeyRef:
                 name: "forward-auth-key"
                 key: "secret"
+        resources:
+          requests:
+            cpu: "10m"
+            memory: "20Mi"
+          limits:
+            cpu: "100m"
+            memory: "100Mi"
   destination:
     namespace: traefik-forward-auth
     server: https://kubernetes.default.svc

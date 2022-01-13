@@ -1,10 +1,32 @@
 "artifactory":
+  "artifactory":
+    "resources":
+      "limits":
+        "cpu": "2"
+        "memory": "3.6Gi"
+      "requests":
+        "cpu": "152m"
+        "memory": "3.6Gi"
   "ingress":
     "enabled": true
     "hosts":
     - "repo.khand.dev"
   "nginx":
+    "resources":
+      "limits":
+        "cpu": "50m"
+        "memory": "100Mi"
+      "requests":
+        "cpu": "10m"
+        "memory": "20Mi"
     "service":
       "type": "ClusterIP"
   "postgresql":
     "existingSecret": "artifactory-postgresql"
+    "resources":
+      "limits":
+        "cpu": "250m"
+        "memory": "500Mi"
+      "requests":
+        "cpu": "19m"
+        "memory": "244Mi"

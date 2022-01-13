@@ -172,6 +172,16 @@ locals {
             }
           },
         ]
+        resources = {
+          requests = {
+            cpu = "10m"
+            memory = "65.4Mi"
+          }
+          limits = {
+            cpu = "100m"
+            memory = "200Mi"
+          }
+        }
       })]
     }
     nfs_provisioner = {
@@ -187,18 +197,26 @@ locals {
         image = {
           tag = "v4.0.2"
         }
-
         nfs = {
           server = "10.10.1.1"
           path = "/mnt/storage/k8s/export"
           mountOptions = [ "nolock" ]
         }
-
         storageClass = {
           name = "nfs"
           defaultClass = true
           pathPattern = "$${.PVC.namespace}/$${.PVC.name}"
           onDelete = "delete"
+        }
+        resources = {
+          requests = {
+            cpu = "10m"
+            memory = "72.2Mi"
+          }
+          limits = {
+            cpu = "100m"
+            memory = "200Mi"
+          }
         }
       })]
     }
@@ -216,6 +234,64 @@ locals {
             enabled = true
             annotations = { "traefik.ingress.kubernetes.io/router.middlewares": "traefik-forward-auth-traefik-forward-auth@kubernetescrd" }
             hosts = [ "argo.khand.dev" ]
+          }
+          resources = {
+            requests = {
+              cpu = "10m"
+              memory = "59.7Mi"
+            }
+            limits = {
+              cpu = "100m"
+              memory = "200Mi"
+            }
+          }
+        }
+        controller = {
+          resources = {
+            requests = {
+              cpu = "46m"
+              memory = "251.9Mi"
+            }
+            limits = {
+              cpu = "200m"
+              memory = "500Mi"
+            }
+          }
+        }
+        repoServer = {
+          resources = {
+            requests = {
+              cpu = "10m"
+              memory = "45.7Mi"
+            }
+            limits = {
+              cpu = "100m"
+              memory = "200Mi"
+            }
+          }
+        }
+        redis = {
+          resources = {
+            requests = {
+              cpu = "10m"
+              memory = "20Mi"
+            }
+            limits = {
+              cpu = "100m"
+              memory = "200Mi"
+            }
+          }
+        }
+        dex = {
+          resources = {
+            requests = {
+              cpu = "10m"
+              memory = "22Mi"
+            }
+            limits = {
+              cpu = "100m"
+              memory = "200Mi"
+            }
           }
         }
       })]
@@ -235,6 +311,28 @@ locals {
             annotations = { "traefik.ingress.kubernetes.io/router.middlewares": "traefik-forward-auth-traefik-forward-auth@kubernetescrd" }
             hosts = [{ host = "vault.khand.dev" }]
           }
+          resources = {
+            requests = {
+              cpu = "60m"
+              memory = "62.7Mi"
+            }
+            limits = {
+              cpu = "200m"
+              memory = "200Mi"
+            }
+          }
+        }
+        injector = {
+          resources = {
+            requests = {
+              cpu = "10m"
+              memory = "20Mi"
+            }
+            limits = {
+              cpu = "100m"
+              memory = "200Mi"
+            }
+          }
         }
       })]
     }
@@ -245,7 +343,19 @@ locals {
         name = "external-secrets/external-secrets"
         version = "0.3.10"
       }
-      values = [ yamlencode({ installCRDs = true })]
+      values = [ yamlencode({
+        installCRDs = true
+        resources = {
+          requests = {
+            cpu = "10m"
+            memory = "63.4Mi"
+          }
+          limits = {
+            cpu = "100m"
+            memory = "200Mi"
+          }
+        }
+      })]
     }
     artifactory = {
       directories = { generated = "${local.helm_apps_root_dir}/artifactory" }
@@ -256,37 +366,51 @@ locals {
       }
       values = [ yamlencode({
         artifactory = {
-          nginx = { service = { type = "ClusterIP" }}
+          nginx = {
+            service = { type = "ClusterIP" }
+            resources = {
+              requests = {
+                cpu = "10m"
+                memory = "20Mi"
+              }
+              limits = {
+                cpu = "50m"
+                memory = "100Mi"
+              }
+            }
+          }
           ingress = {
             enabled = true
             annotations = { "traefik.ingress.kubernetes.io/router.middlewares": "traefik-forward-auth-traefik-forward-auth@kubernetescrd" }
             hosts = [ "repo.khand.dev" ]
           }
-          postgresql = { existingSecret = "artifactory-postgresql" }
+          postgresql = {
+            existingSecret = "artifactory-postgresql"
+            resources = {
+              requests = {
+                cpu = "19m"
+                memory = "244Mi"
+              }
+              limits = {
+                cpu = "250m"
+                memory = "500Mi"
+              }
+            }
+          }
+          artifactory = {
+            resources = {
+              requests = {
+                cpu = "152m"
+                memory = "3.6Gi"
+              }
+              limits = {
+                cpu = "2"
+                memory = "3.6Gi"
+              }
+            }
+          }
         }
       })]
-    }
-    grafana_loki_stack = {
-      directories = { generated = "${local.helm_apps_root_dir}/grafana" }
-      namespace = "grafana"
-      chart = {
-        name = "grafana/loki-stack"
-        version = "2.5.0"
-      }
-      values = [ yamlencode({
-        grafana = {
-          enabled = true
-          persistence = { enabled = true }
-          ingress = {
-            enabled = true
-            annotations = { "traefik.ingress.kubernetes.io/router.middlewares": "traefik-forward-auth-traefik-forward-auth@kubernetescrd" }
-            hosts = [ "logs.khand.dev" ]
-          }
-          initChownData = { enabled = false }
-        }
-        prometheus = { enabled = true }
-        loki = { persistence = { enabled = true }}
-      })] 
     }
   }
 }

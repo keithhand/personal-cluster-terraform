@@ -58,6 +58,13 @@ spec:
           password=${CF_GLOBAL_API}
           zone=${ZONE}
           ${SUBDOMAIN}.${ZONE}
+        resources:
+          requests:
+            cpu: "10m"
+            memory: "46.9Mi"
+          limits:
+            cpu: "100m"
+            memory: "200Mi"
   destination:
     namespace: ddclient
     server: https://kubernetes.default.svc

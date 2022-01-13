@@ -26,6 +26,13 @@ spec:
             - host: "home.khand.dev"
               paths:
                 - path: "/"
+        resources:
+          requests:
+            cpu: "10m"
+            memory: "302.6Mi"
+          limits:
+            cpu: "100m"
+            memory: "750Mi"
   destination:
     namespace: home-assistant
     server: https://kubernetes.default.svc
